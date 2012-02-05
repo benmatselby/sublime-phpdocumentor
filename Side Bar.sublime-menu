@@ -1,0 +1,10 @@
+[
+    { "caption": "-" },
+    {
+        "caption": "DocBlox",
+        "children":
+        [
+            { "command": "docblox_document_all", "args": { "paths": [] } }
+        ]
+    }
+]

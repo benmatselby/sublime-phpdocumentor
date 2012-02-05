@@ -17,11 +17,8 @@ Right-click in the side-bar to:
 
 * Generate documentation
 
-You can also open up the Command Palette (CTRL + SHIFT + P on Linux), and type
-'DocBlox' to see what you can do with DocBlox.
-
 _DocBlox support is based on:
-[PHPUnit plugin](https://github.com/stuartherbert/sublime-phpunit)_ which is based on
+[PHPUnit plugin](https://github.com/stuartherbert/sublime-phpunit) which is based on
 [Ruby Tests plugin](https://github.com/maltize/sublime-text-2-ruby-tests)_
 
 
