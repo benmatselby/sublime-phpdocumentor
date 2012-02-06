@@ -136,21 +136,34 @@ class DocbloxCommand(CommandBase):
     def run(self, paths):
         self.show_empty_output()
 
+        # Load the settings files
+        settings_file = '%s.sublime-settings' % __name__
+        settings = sublime.load_settings(settings_file)
+
+        # Define the output directory and type of output
+        output_dir = settings.get('output_dir')
+        output_dir_type = settings.get('output_dir_type')
+
         cmd = ""
-        ignore = ""
 
         if len(paths) > 0:
 
             if os.path.isfile(paths[0]):
-                cmd = "cd '" + os.path.dirname(paths[0]) + "' && docblox -f " + paths[0] + " -t " + os.path.dirname(paths[0]) + "/build/api/"
-                ignore = ignore + os.path.dirname(paths[0]) + "/build/api/"
+                cmd = "cd '" + os.path.dirname(paths[0]) + "' && docblox -f " + paths[0]
+                target = os.path.dirname(paths[0])
 
             if os.path.isdir(paths[0]):
-                cmd = "cd '" + paths[0] + "' && docblox -d " + paths[0] + " -t " + paths[0] + "/build/api/"
-                ignore = ignore + paths[0] + "/build/api/"
+                cmd = "cd '" + paths[0] + "' && docblox -d " + paths[0]
+                target = paths[0]
 
         if cmd != "":
-            cmd = cmd + " -i " + ignore
+
+            if output_dir_type == "relative":
+                target = target + "/" + output_dir
+            else:
+                target = output_dir
+
+            cmd = cmd + " -t " + target + " -i " + target
 
         self.append_data(self, "$ " + cmd + "\n")
         self.start_async("Running DocBlox", cmd)

@@ -1,0 +1,7 @@
+{
+    // Path to where you want the output to be defined
+    "output_dir": "build/api/",
+
+    // Type of path: relative|absolute
+    "output_dir_type": "relative"
+}
