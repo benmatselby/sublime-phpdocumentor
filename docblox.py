@@ -7,6 +7,22 @@ import thread
 import sublime
 import sublime_plugin
 
+
+settings = sublime.load_settings('docblox.sublime-settings')
+
+class Pref:
+    def load(self):
+
+        print "Loading docblox settings"
+        Pref.docblox_output_dir = settings.get('output_dir')
+        Pref.docblox_output_dir_type = settings.get('output_dir_type')
+
+Pref().load()
+
+settings.add_on_change('output_dir', lambda:Pref().load())
+settings.add_on_change('output_dir_type', lambda:Pref().load())
+
+
 # the AsyncProcess class has been cribbed from:
 # https://github.com/maltize/sublime-text-2-ruby-tests/blob/master/run_ruby_test.py
 
@@ -42,6 +58,7 @@ class AsyncProcess(object):
         self.listener.is_running = False
         break
 
+
 # the StatusProcess class has been cribbed from:
 # https://github.com/maltize/sublime-text-2-ruby-tests/blob/master/run_ruby_test.py
 
@@ -62,6 +79,7 @@ class StatusProcess(object):
         time.sleep(1)
       else:
         break
+
 
 class OutputView(object):
     def __init__(self, name, window):
@@ -104,6 +122,7 @@ class OutputView(object):
         self.output_view.end_edit(edit)
         self.output_view.set_read_only(True)
 
+
 class CommandBase:
     def __init__(self, window):
         self.window = window
@@ -132,17 +151,10 @@ class CommandBase:
     def update_status(self, msg, progress):
         sublime.status_message(msg + " " + progress)
 
+
 class DocbloxCommand(CommandBase):
     def run(self, paths):
         self.show_empty_output()
-
-        # Load the settings files
-        settings_file = '%s.sublime-settings' % __name__
-        settings = sublime.load_settings(settings_file)
-
-        # Define the output directory and type of output
-        output_dir = settings.get('output_dir')
-        output_dir_type = settings.get('output_dir_type')
 
         cmd = ""
 
@@ -158,15 +170,16 @@ class DocbloxCommand(CommandBase):
 
         if cmd != "":
 
-            if output_dir_type == "relative":
-                target = target + "/" + output_dir
+            if Pref.docblox_output_dir_type == "relative":
+                target = target + "/" + Pref.docblox_output_dir
             else:
-                target = output_dir
+                target = Pref.docblox_output_dir
 
             cmd = cmd + " -t " + target + " -i " + target
 
         self.append_data(self, "$ " + cmd + "\n")
         self.start_async("Running DocBlox", cmd)
+
 
 class ActiveFile:
     def findFolderContainingFile(self, path, filename):
@@ -232,6 +245,7 @@ class ActiveFile:
                 # print "Run out of options"
         return None
 
+
 class ActiveWindow(ActiveFile):
     def file_name(self):
         if hasattr(self, '_file_name'):
@@ -254,9 +268,11 @@ class ActiveWindow(ActiveFile):
             return True
         return False
 
+
 class DocbloxWindowBase(sublime_plugin.WindowCommand, ActiveWindow):
     def run(self, paths=[]):
         print "not implemented"
+
 
 class DocbloxDocumentAllCommand(DocbloxWindowBase):
     def run(self, paths=[]):
