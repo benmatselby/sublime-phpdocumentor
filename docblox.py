@@ -157,6 +157,7 @@ class DocbloxCommand(CommandBase):
         self.show_empty_output()
 
         cmd = ""
+        target = ""
 
         if len(paths) > 0:
 
@@ -171,9 +172,9 @@ class DocbloxCommand(CommandBase):
         if cmd != "":
 
             if Pref.docblox_output_dir_type == "relative":
-                target = target + "/" + Pref.docblox_output_dir
+                target = target + "/" + str(Pref.docblox_output_dir)
             else:
-                target = Pref.docblox_output_dir
+                target = str(Pref.docblox_output_dir)
 
             cmd = cmd + " -t " + target + " -i " + target
 
