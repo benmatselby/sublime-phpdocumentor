@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0
+---
+* Changes to make the plugin work on the windows platform.
+
 2.0
 ---
 * Issues with running this plugin in Linux are now fixed.
