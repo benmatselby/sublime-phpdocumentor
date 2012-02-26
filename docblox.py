@@ -8,19 +8,21 @@ import sublime
 import sublime_plugin
 
 
+def debug_message(msg):
+    print "[DocBlox] " + msg
+
+
 settings = sublime.load_settings('docblox.sublime-settings')
 
 class Pref:
-    def load(self):
+    @staticmethod
+    def load():
 
-        print "Loading docblox settings"
+        debug_message("Loading docblox settings")
         Pref.docblox_output_dir = settings.get('output_dir')
         Pref.docblox_output_dir_type = settings.get('output_dir_type')
 
-Pref().load()
-
-settings.add_on_change('output_dir', lambda:Pref().load())
-settings.add_on_change('output_dir_type', lambda:Pref().load())
+Pref.load()
 
 
 # the AsyncProcess class has been cribbed from:
@@ -30,8 +32,11 @@ class AsyncProcess(object):
   def __init__(self, cmd, listener):
     self.cmd = cmd
     self.listener = listener
-    print "DEBUG_EXEC: " + self.cmd
-    self.proc = subprocess.Popen([self.cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    if sublime.platform() == "windows":
+        self.proc = subprocess.Popen(self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    else:
+        self.proc = subprocess.Popen(self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if self.proc.stdout:
       thread.start_new_thread(self.read_stdout, ())
     if self.proc.stderr:
@@ -156,123 +161,38 @@ class DocbloxCommand(CommandBase):
     def run(self, paths):
         self.show_empty_output()
 
-        cmd = ""
+        cmd = ['docblox']
         target = ""
 
         if len(paths) > 0:
 
             if os.path.isfile(paths[0]):
-                cmd = "cd '" + os.path.dirname(paths[0]) + "' && docblox -f " + paths[0]
-                target = os.path.dirname(paths[0])
+                cmd.append("-f")
+                cmd.append(os.path.normpath(paths[0]))
+                target = os.path.normpath(os.path.dirname(paths[0]))
 
             if os.path.isdir(paths[0]):
-                cmd = "cd '" + paths[0] + "' && docblox -d " + paths[0]
-                target = paths[0]
-
-        if cmd != "":
+                cmd.append("-d")
+                cmd.append(os.path.normpath(paths[0]))
+                target = os.path.normpath(paths[0])
 
             if Pref.docblox_output_dir_type == "relative":
-                target = target + "/" + str(Pref.docblox_output_dir)
+                target = target + "/" + Pref.docblox_output_dir
             else:
-                target = str(Pref.docblox_output_dir)
+                target = Pref.docblox_output_dir
 
-            cmd = cmd + " -t " + target + " -i " + target
+            cmd.append("-t")
+            cmd.append(str(target))
+            cmd.append("-i")
+            cmd.append(str(target))
 
-        self.append_data(self, "$ " + cmd + "\n")
+        self.append_data(self, "$ " + ' '.join(cmd) + "\n")
         self.start_async("Running DocBlox", cmd)
 
 
-class ActiveFile:
-    def findFolderContainingFile(self, path, filename):
-        if path == '/':
-            return None
-        if os.path.exists(path + '/' + filename):
-            return [ path, filename ]
-
-        return self.findFolderContainingFile(os.path.dirname(path), filename)
-
-    def resetSearchedFolders(self):
-        self.searchedFolders = {}
-
-    def findFileFor(self, path, suffix, depth):
-        if depth == 0:
-            return None
-        if path == '/':
-            return None
-        # optimisation - avoid looking in the same place twice
-        pathToSearch = path + '/'
-        filenameToTest = pathToSearch + suffix
-        # print "Looking for " + filenameToTest
-        if os.path.exists(filenameToTest):
-            return filenameToTest
-        found_path = self.searchSubfoldersFor(path, suffix)
-        if found_path is not None:
-            return found_path
-        # avoid looking in here again
-        self.searchedFolders[pathToSearch] = True
-        depth = depth - 1
-        return self.findFileFor(os.path.dirname(path), suffix, depth)
-
-    def searchSubfoldersFor(self, path, suffix):
-        # print "searchSubfoldersFor: " + path + ' ' + suffix
-        for root, dirs, names in os.walk(path):
-            for subdir in dirs:
-                # print "looking at dir " + subdir
-                # optimisation - avoid looking in hidden places
-                if subdir[0] == '.':
-                    # print "skipping hidden folder " + subdir
-                    continue
-                # optimisation - avoid looking down dead ends
-                frontToTest = subdir + '/'
-                if suffix[:len(frontToTest)] == frontToTest:
-                    # print "skipping matching prefix " + frontToTest
-                    continue
-                # optimisation - avoid looking in the same place twice
-                pathToSearch = path + '/' + subdir + '/'
-                if pathToSearch in self.searchedFolders:
-                    # print "Skipping " + pathToSearch
-                    continue
-                self.searchedFolders[pathToSearch] = True
-                # if we get here, we have not discarded this folder yet
-                filenameToTest = pathToSearch + suffix
-                # print "Looking in subfolders for " + filenameToTest
-                if os.path.exists(filenameToTest):
-                    # print "Found " + filenameToTest
-                    return filenameToTest
-                found_path = self.searchSubfoldersFor(path + '/' + subdir, suffix)
-                if found_path is not None:
-                    # print "Found path!!"
-                    return found_path
-                # print "Run out of options"
-        return None
-
-
-class ActiveWindow(ActiveFile):
-    def file_name(self):
-        if hasattr(self, '_file_name'):
-            return self._file_name
-
-        return None
-
-    def determine_filename(self, args=[]):
-        if len(args) == 0:
-            active_view = self.window.active_view()
-            filename = active_view.file_name()
-        else:
-            filename = args[0]
-
-        self._file_name = filename
-
-    def is_php_buffer(self):
-        ext = os.path.splitext(self.file_name())[1]
-        if ext == 'php':
-            return True
-        return False
-
-
-class DocbloxWindowBase(sublime_plugin.WindowCommand, ActiveWindow):
+class DocbloxWindowBase(sublime_plugin.WindowCommand):
     def run(self, paths=[]):
-        print "not implemented"
+        debug_message("not implemented")
 
 
 class DocbloxDocumentAllCommand(DocbloxWindowBase):
