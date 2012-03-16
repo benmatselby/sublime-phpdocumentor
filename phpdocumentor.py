@@ -9,18 +9,17 @@ import sublime_plugin
 
 
 def debug_message(msg):
-    print "[DocBlox] " + msg
+    print "[phpDocumentor] " + msg
 
 
-settings = sublime.load_settings('docblox.sublime-settings')
+settings = sublime.load_settings('phpdocumentor.sublime-settings')
 
 class Pref:
     @staticmethod
     def load():
 
-        debug_message("Loading docblox settings")
-        Pref.docblox_output_dir = settings.get('output_dir')
-        Pref.docblox_output_dir_type = settings.get('output_dir_type')
+        Pref.output_dir = settings.get('output_dir')
+        Pref.output_dir_type = settings.get('output_dir_type')
 
 Pref.load()
 
@@ -134,13 +133,13 @@ class CommandBase:
 
     def show_output(self):
         if not hasattr(self, 'output_view'):
-            self.output_view = OutputView('docblox', self.window)
+            self.output_view = OutputView('phpdocumentor', self.window)
 
         self.output_view.show_output()
 
     def show_empty_output(self):
         if not hasattr(self, 'output_view'):
-            self.output_view = OutputView('docblox', self.window)
+            self.output_view = OutputView('phpdocumentor', self.window)
 
         self.output_view.clear_output_view()
         self.output_view.show_output()
@@ -157,11 +156,11 @@ class CommandBase:
         sublime.status_message(msg + " " + progress)
 
 
-class DocbloxCommand(CommandBase):
+class PhpDocumentorCommand(CommandBase):
     def run(self, paths):
         self.show_empty_output()
 
-        cmd = ['docblox']
+        cmd = ['phpdoc']
         target = ""
 
         if len(paths) > 0:
@@ -176,10 +175,10 @@ class DocbloxCommand(CommandBase):
                 cmd.append(os.path.normpath(paths[0]))
                 target = os.path.normpath(paths[0])
 
-            if Pref.docblox_output_dir_type == "relative":
-                target = target + "/" + Pref.docblox_output_dir
+            if Pref.output_dir_type == "relative":
+                target = target + "/" + Pref.output_dir
             else:
-                target = Pref.docblox_output_dir
+                target = Pref.output_dir
 
             cmd.append("-t")
             cmd.append(str(target))
@@ -187,18 +186,18 @@ class DocbloxCommand(CommandBase):
             cmd.append(str(target))
 
         self.append_data(self, "$ " + ' '.join(cmd) + "\n")
-        self.start_async("Running DocBlox", cmd)
+        self.start_async("Running phpDocumentor", cmd)
 
 
-class DocbloxWindowBase(sublime_plugin.WindowCommand):
+class PhpDocumentorWindowBase(sublime_plugin.WindowCommand):
     def run(self, paths=[]):
         debug_message("not implemented")
 
 
-class DocbloxDocumentAllCommand(DocbloxWindowBase):
+class PhpDocumentorDocumentAllCommand(PhpDocumentorWindowBase):
     def run(self, paths=[]):
 
-        cmd = DocbloxCommand(self.window)
+        cmd = PhpDocumentorCommand(self.window)
         cmd.run(paths)
 
     def is_enabled(self, paths=[]):

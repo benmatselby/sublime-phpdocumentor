@@ -1,10 +1,10 @@
 [
     { "caption": "-" },
     {
-        "caption": "DocBlox",
+        "caption": "phpDocumentor",
         "children":
         [
-            { "command": "docblox_document_all", "args": { "paths": [] } }
+            { "command": "php_documentor_document_all", "args": { "paths": [] } }
         ]
     }
 ]

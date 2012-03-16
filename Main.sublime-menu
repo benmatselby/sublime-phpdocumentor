@@ -12,17 +12,17 @@
                 "children":
                 [
                     {
-                        "caption": "DocBlox",
+                        "caption": "phpDocumentor",
                         "children":
                         [
                             {
                                 "command": "open_file",
-                                "args": {"file": "${packages}/DocBlox/docblox.sublime-settings"},
+                                "args": {"file": "${packages}/phpDocumentor/phpdocumentor.sublime-settings"},
                                 "caption": "Settings – Default"
                             },
                             {
                                 "command": "open_file",
-                                "args": {"file": "${packages}/User/docblox.sublime-settings"},
+                                "args": {"file": "${packages}/User/phpdocumentor.sublime-settings"},
                                 "caption": "Settings – User"
                             }
                         ]
