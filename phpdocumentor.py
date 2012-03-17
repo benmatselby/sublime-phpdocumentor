@@ -8,20 +8,27 @@ import sublime
 import sublime_plugin
 
 
-def debug_message(msg):
-    print "[phpDocumentor] " + msg
-
-
 settings = sublime.load_settings('phpdocumentor.sublime-settings')
 
 class Pref:
     @staticmethod
     def load():
-
+        Pref.additional_args = settings.get('additional_args', {})
         Pref.output_dir = settings.get('output_dir')
         Pref.output_dir_type = settings.get('output_dir_type')
+        Pref.executable_path = settings.get('executable_path')
 
 Pref.load()
+
+[settings.add_on_change(setting, Pref.load) for setting in [
+    'additional_args',
+    'output_dir',
+    'output_dir_type',
+    'executable_path']]
+
+
+def debug_message(msg):
+    print "[phpDocumentor] " + msg
 
 
 # the AsyncProcess class has been cribbed from:
@@ -160,8 +167,17 @@ class PhpDocumentorCommand(CommandBase):
     def run(self, paths):
         self.show_empty_output()
 
-        cmd = ['phpdoc']
+        if Pref.executable_path != "":
+            cmd = [Pref.executable_path]
+        else:
+            cmd = ['phpdoc']
         target = ""
+
+        for key, value in Pref.additional_args.items():
+            arg = key
+            if value != "":
+                arg += "=" + value
+            cmd.append(arg)
 
         if len(paths) > 0:
 

@@ -1,4 +1,14 @@
 {
+    // It seems python/sublime cannot always find the phpdoc application
+    // If empty, then use PATH version of phpdoc, else use the set value
+    "executable_path": "",
+
+    // Additional arguments you can specify into the application
+    //
+    // {"--title": "Title", "--force": ""}
+    //
+    "additional_args": {},
+
     // Path to where you want the output to be defined
     "output_dir": "build/api/",
 

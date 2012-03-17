@@ -1,6 +1,10 @@
 Changelog
 =========
 
+4.1
+---
+* Allow the user to specify the path to phpdoc and additional arguments on the command line
+
 4.0
 ---
 * Renamed to Sublime phpDocumentor due to the merge of phpdoc and docblox, [more information here](http://www.docblox-project.org/2012/03/docblox-is-unmasked-it-is-really-phpdocumentor-2/)

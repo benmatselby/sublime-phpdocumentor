@@ -21,6 +21,14 @@ _Sublime phpDocumentor support is based on:
 [PHPUnit plugin](https://github.com/stuartherbert/sublime-phpunit) which is based on
 [Ruby Tests plugin](https://github.com/maltize/sublime-text-2-ruby-tests)_
 
+Configuration
+-------------
+
+You can configure:
+
+* additional_args - This is the extra information you want to pass to the phpdoc command
+* executable_path - The path to the phpdoc executable. If empty string, use PATH to find it
+
 
 Contributions Welcome
 ---------------------
