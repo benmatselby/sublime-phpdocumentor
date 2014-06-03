@@ -1,7 +1,6 @@
 Sublime phpDocumentor
 =====================
 
-This plugin adds phpDocumentor support to Sublime Text 2. More information can be found [here](http://soulbroken.co.uk/code/sublimephpdocumentor)
 
 Installation
 ------------
